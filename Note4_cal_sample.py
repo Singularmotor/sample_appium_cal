@@ -10,12 +10,47 @@ from time import sleep
 PATH = lambda p: os.path.abspath(
     os.path.join(os.path.dirname(__file__),p)
 )
+#确认设备是否正常连接到pc
+def connectD():
+    try:
+        deInfo = os.popen('adb devices').read()
+        if deInfo == '':
+            return False
+        else:
+            return True
+    except Exception as e:
+        print('设备连接失败:',e)
+
+#自动识别连接设备的信息
+#识别手机名称对应参数deviceName
+def auto_get_DeName():
+    try:
+        if connectD():
+            DeName = os.popen('adb shell getprop ro.product.model').read()
+            return DeName
+        else:
+            return '连接失败，请重新尝试'
+    except Exception as e:
+        print('DeName信息获取失败:',e)
+    return 0
+
+#识别手机系统版本对应参数platformVersion
+def auto_get_DeVersion():
+    try:
+        if connectD():
+            DeVersion = os.popen('adb shell getprop ro.build.version.release').read()
+            return DeVersion
+        else:
+            return '连接失败，请重新尝试'
+    except Exception as e:
+        print('DeVersion信息获取失败:',e)
+    return 0
 
 #上传appium-servers初始化参数
 desired_caps = {}
 desired_caps['platformName'] = 'Android'
-desired_caps['platformVersion'] = '5.1.1'
-desired_caps['deviceName'] = 'Galaxy Note4'
+desired_caps['platformVersion'] = auto_get_DeVersion() #更替为自动获取的设备信息
+desired_caps['deviceName'] = auto_get_DeName() #更替为自动获取的设备信息
 #desired_caps['app'] = PATH() 括号内填写软件包地址，如果安装软件包的话
 desired_caps['appPackage'] = 'com.sec.android.app.popupcalculator'
 desired_caps['appActivity'] = 'com.sec.android.app.popupcalculator.Calculator'
